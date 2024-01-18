@@ -13,7 +13,7 @@ data:
   word_emb_file: ../../data/wlasl_2000/wlasl_word_embeddings.pkl
   train: ../../generated/train.pkl
   #train: ../../data/wlasl_2000/train.pkl
-  dev: ../../data/wlasl_2000/dev.pkl
+  dev: ../../generated/train.pkl
   test: ../../data/wlasl_2000/test.pkl
   dataset_name: wlasl
   level: word #word or char
