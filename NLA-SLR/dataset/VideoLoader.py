@@ -3,6 +3,7 @@ from utils.zipreader import ZipReader
 import io, torch, torchvision
 from PIL import Image
 import lintel, random
+import cv2
 
 
 def _load_frame_nums_to_4darray(video, frame_nums):
@@ -149,16 +150,28 @@ def pad_array(array, l_and_r):
 
 def load_video(zip_file, name, vlen, num_frames, dataset_name, is_train, 
                 index_setting=['consecutive', 'pad', 'central', 'pad'], temp_scale=[1.0,1.0], ori_vfile=''):
-    if 'WLASL' in dataset_name:
+    if 'wlasl' in dataset_name:
         vlen = vlen - 2  # a bug in lintel when load .mp4, by yutong
 
     selected_index, pad = get_selected_indexs(vlen, num_frames, is_train, index_setting)
 
-    if 'WLASL' in dataset_name:
-        video_file = 'WLASL2000/{:s}.mp4'.format(name)
-        path = zip_file+'@'+video_file
-        video_byte = ZipReader.read(path)
-        video_arrays = _load_frame_nums_to_4darray(video_byte, selected_index) #T,H,W,3
+    if 'wlasl' in dataset_name:
+        # video_file = 'WLASL2000/{:s}.mp4'.format(name)
+        # path = zip_file+'@'+video_file
+        # video_byte = ZipReader.read(path)
+        # with open(ori_vfile, 'rb') as f:
+        #     video_byte = f.read()
+        #print('video_byte: ', len(video_byte))
+        video = cv2.VideoCapture(ori_vfile)
+        video_arrays = []
+        for f in selected_index:
+            video.set(cv2.CAP_PROP_POS_FRAMES, f)
+            ret, frame = video.read()
+            video_arrays.append(frame)
+        video_arrays = np.stack(video_arrays, axis=0)
+        #print('video_arrays: ', video_arrays.shape)
+        #video_arrays = _load_frame_nums_to_4darray(video_byte, selected_index) #T,H,W,3
+        #print('video_arrays: ', video_arrays.shape)
     elif 'MSASL' in dataset_name or 'NMFs-CSL' in dataset_name:
         video_arrays = read_jpg(zip_file, dataset_name, selected_index, vlen, ori_vfile)
     
@@ -176,6 +189,8 @@ def load_batch_video(zip_file, names, vlens, dataset_name, is_train,
     
     batch_videos, batch_keypoints = [], []
     for name, vlen, ori_vfile in zip(names, vlens, ori_video_files):
+        print(name, vlen, ori_vfile)
+        #breakpoint()
         video, selected_index, pad = load_video(zip_file, name, vlen, num_output_frames, dataset_name, is_train, index_setting, temp_scale, ori_vfile)
         # video = torch.tensor(video).to(torch.uint8)
         video = torch.tensor(video).float()  #T,H,W,C
