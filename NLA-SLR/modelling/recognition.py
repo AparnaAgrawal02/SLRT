@@ -102,6 +102,7 @@ class RecognitionNetwork(torch.nn.Module):
                 self.visual_head_fuse = HeadCLS(cls_num=cls_num, word_emb_tab=word_emb_tab, **joint_head_cfg)
 
             elif self.fuse_method is not None and 'four' in self.fuse_method:
+                print(len(input_streams),"@@@"*15)
                 assert len(input_streams)==4
                 joint_head_cfg = deepcopy(cfg['visual_head'])
                 if 'joint' not in language_apply_to:
@@ -233,13 +234,14 @@ class RecognitionNetwork(torch.nn.Module):
         #self.sigma
         #keypoints B,T,N,3
         B,T,N,D = keypoints.shape
+        print(keypoints.shape)
         keypoints = keypoints.reshape(-1, N, D)
         chunk_size = int(math.ceil((B*T)/self.preprocess_chunksize))
         chunks = torch.split(keypoints, chunk_size, dim=0)
 
         heatmaps = []
         for chunk in chunks:
-            # print(chunk.shape)
+            print(chunk.shape)
             hm = gen_gaussian_hmap_op(
                 coords=chunk,  
                 **heatmap_cfg) #sigma, confidence, threshold) #B*T,N,H,W
@@ -466,7 +468,7 @@ class RecognitionNetwork(torch.nn.Module):
             s3d_outputs = self.visual_backbone_twostream(x_rgb=sgn_videos, x_pose=sgn_heatmaps)
         elif len(self.input_streams)==4:
             s3d_outputs = self.visual_backbone_fourstream(sgn_videos, sgn_videos_low, sgn_heatmaps, sgn_heatmaps_low)
-
+       
         if self.fuse_method is None:
             assert len(self.input_streams)==1, self.input_streams
             assert self.cfg['pyramid']['rgb'] == self.cfg['pyramid']['pose']
@@ -654,7 +656,7 @@ class RecognitionNetwork(torch.nn.Module):
                 else:
                     outputs['total_loss'] = outputs['total_loss'] + self.contras_loss_weight * contras_loss
 
-        return outputs
+        return outputs, fused_fea
 
 
     def forward(self, is_train, labels, sgn_videos=None, sgn_keypoints=None, epoch=0, **kwargs):

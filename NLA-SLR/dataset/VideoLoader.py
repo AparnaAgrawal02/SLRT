@@ -51,11 +51,12 @@ def read_jpg(zip_file, dataset_name, decoded_frames, seq_len, img_dir):
             # print('broken img: ', img_path)
             img = np.array(video_arrays[-1])
         video_arrays.append(img) #H,W,C
+    
     video_arrays = np.stack(video_arrays, axis=0) #T,H,W,C
     return video_arrays
 
 
-def get_selected_indexs(vlen, num_frames=64, is_train=True, setting=['consecutive', 'pad', 'central', 'pad']):
+def get_selected_indexs(vlen, num_frames=64, is_train=True, setting=['random', 'pad', 'start', 'pad']):
     pad = None  #pad denotes the number of padding frames
     assert len(setting) == 4
     # denote train > 64, test > 64, test < 64
@@ -66,6 +67,7 @@ def get_selected_indexs(vlen, num_frames=64, is_train=True, setting=['consecutiv
     assert test_m in ['pad', 'start_pad', 'end_pad']
     if num_frames > 0:
         assert num_frames%4 == 0
+        is_train = False
         if is_train:
             if vlen > num_frames:
                 if train_p == 'consecutive':
@@ -92,32 +94,33 @@ def get_selected_indexs(vlen, num_frames=64, is_train=True, setting=['consecutiv
                 selected_index = np.arange(0, vlen)
         
         else:
-            if vlen >= num_frames:
+            #if vlen >= num_frames:
+            start = 0
+            if test_p == 'central':
+                start = (vlen - num_frames) // 2
+            elif test_p == 'start':
                 start = 0
-                if test_p == 'central':
-                    start = (vlen - num_frames) // 2
-                elif test_p == 'start':
-                    start = 0
-                elif test_p == 'end':
-                    start = vlen - num_frames
-                selected_index = np.arange(start, start+num_frames)
-            else:
-                remain = num_frames - vlen
-                selected_index = np.arange(0, vlen)
-                if test_m == 'pad':
-                    pad_left = remain // 2
-                    pad_right = remain - pad_left
-                    pad = (pad_left, pad_right)
-                elif test_m == 'start_pad':
-                    pad_left = 0
-                    pad_right = remain - pad_left
-                    pad = (pad_left, pad_right)
-                elif test_m == 'end_pad':
-                    pad_left = remain
-                    pad_right = remain - pad_left
-                    pad = (pad_left, pad_right)
-                else:
-                    selected_index = np.arange(0, vlen)
+            elif test_p == 'end':
+                start = vlen - num_frames
+            start =0 
+            selected_index = np.arange(start, start+num_frames)
+            # else:
+            #     remain = num_frames - vlen
+            #     selected_index = np.arange(0, vlen)
+            #     if test_m == 'pad':
+            #         pad_left = remain // 2
+            #         pad_right = remain - pad_left
+            #         pad = (pad_left, pad_right)
+            #     elif test_m == 'start_pad':
+            #         pad_left = 0
+            #         pad_right = remain - pad_left
+            #         pad = (pad_left, pad_right)
+            #     elif test_m == 'end_pad':
+            #         pad_left = remain
+            #         pad_right = remain - pad_left
+            #         pad = (pad_left, pad_right)
+            #     else:
+            #         selected_index = np.arange(0, vlen)
     else:
         # for statistics
         selected_index = np.arange(vlen)
@@ -167,8 +170,19 @@ def load_video(zip_file, name, vlen, num_frames, dataset_name, is_train,
         for f in selected_index:
             video.set(cv2.CAP_PROP_POS_FRAMES, f)
             ret, frame = video.read()
-            video_arrays.append(frame)
-        video_arrays = np.stack(video_arrays, axis=0)
+            if ret:
+                video_arrays.append(frame)
+            else:
+                selected_index = selected_index[:len(video_arrays)]
+                break
+        print (len(video_arrays),"video_arrays")
+        print("*******"*100)
+        try:
+            video_arrays = np.stack(video_arrays, axis=0)
+        except:
+            print('broken video: ', ori_vfile)
+            print(video_arrays)
+            return [], [], []
         #print('video_arrays: ', video_arrays.shape)
         #video_arrays = _load_frame_nums_to_4darray(video_byte, selected_index) #T,H,W,3
         #print('video_arrays: ', video_arrays.shape)
@@ -193,6 +207,8 @@ def load_batch_video(zip_file, names, vlens, dataset_name, is_train,
         #breakpoint()
         video, selected_index, pad = load_video(zip_file, name, vlen, num_output_frames, dataset_name, is_train, index_setting, temp_scale, ori_vfile)
         # video = torch.tensor(video).to(torch.uint8)
+        if len(video) == 0:
+            continue
         video = torch.tensor(video).float()  #T,H,W,C
         if 'NMFs-CSL' in dataset_name:
             video = torchvision.transforms.functional.resize(video.permute(0,3,1,2), [256,256]).permute(0,2,3,1)
@@ -200,6 +216,9 @@ def load_batch_video(zip_file, names, vlens, dataset_name, is_train,
         batch_videos.append(video) #wo transformed!!
         
         if name2keypoint != None:
+            print(len(name2keypoint[name]))
+            print(selected_index)
+            print("~"*20)
             kps = name2keypoint[name][selected_index,:,:]
             if pad is not None:
                 kps = pad_array(kps, pad)

@@ -214,7 +214,7 @@ def main():
     pose_model = init_model(args.pose_config, args.pose_ckpt, 'cuda')
     
     outputs = {}
-    save_inte = 500
+    save_inte = 1
     for k, batch_data in tqdm(enumerate(dataloader), desc='[Generating keypoints of {:s} of {:s}, {:d} per gpu]'.format(args.split, cfg['data']['dataset_name'], len(dataloader))):
         frames = batch_data['sgn_videos'][0][0].numpy().transpose(0,2,3,1)*255  #[T,H,W,3]
         frames = np.uint8(frames)
@@ -324,7 +324,7 @@ def main():
     #     print(pose_results.shape, (batch_data['vlens'][0], 133, 2))
     #     #assert pose_results.shape == (batch_data['vlens'][0], 133, 2)
     #     # np.savez_compressed(fname+'.npz', keypoints=pose_results.astype(np.float16))
-    #     outputs[video_id] = pose_results.astype(np.float32)
+        outputs[video_id] = pose_results.astype(np.float32)
         if (k+1)%save_inte == 0:
             if args.start_end is None:
                 fname = '{:s}_rank{:d}_{:d}.pkl'.format(args.split, cfg['local_rank'], k)

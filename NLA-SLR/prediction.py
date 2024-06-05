@@ -39,7 +39,7 @@ from copy import deepcopy
 def evaluation(model, val_dataloader, cfg, 
         tb_writer=None, wandb_run=None,
         epoch=None, global_step=None,
-        generate_cfg={}, save_dir=None, return_prob=False):  #to-do output_dir
+        generate_cfg={}, save_dir="/ssd_scratch/cvit/aparna/result", return_prob=False):  #to-do output_dir
     logger = get_logger()
     logger.info(generate_cfg)
     print()
@@ -77,6 +77,8 @@ def evaluation(model, val_dataloader, cfg,
             batch = move_to_device(batch, cfg['device'])
 
             forward_output = model(is_train=False, labels=batch['labels'], sgn_videos=batch['sgn_videos'], sgn_keypoints=batch['sgn_keypoints'], epoch=epoch)
+            print("!"*100)
+            print(forward_output.keys())
             if is_main_process():
                 for k,v in forward_output.items():
                     if '_loss' in k:
@@ -114,10 +116,10 @@ def evaluation(model, val_dataloader, cfg,
 
                     ref = batch['labels'][i].item()
                     results[name]['ref'] = ref
-
+            print(name_prob,logits_name_lst,"here")
             if pbar:
                 pbar(step)
-        print()
+        print(results)
     
     #logging and tb_writer
     if is_main_process():
@@ -128,7 +130,7 @@ def evaluation(model, val_dataloader, cfg,
                 wandb.log({f'eval/{k}': v/len(val_dataloader)})
     
     per_ins_stat_dict, per_cls_stat_dict = compute_accuracy(results, logits_name_lst, cls_num, cfg['device'])
-
+    print("saving results","!"*40)
     #save
     if save_dir:
         os.makedirs(save_dir, exist_ok=True)

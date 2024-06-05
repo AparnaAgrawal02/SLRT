@@ -2,23 +2,25 @@ task: ISLR
 data:
   input_data: videos #features, gloss
   input_streams:
+    - keypoint
+    - keypoint
     - rgb
     - rgb
-  keypoint_file: ../../generated/keypoints_hrnet_dark_coco_wholebody.pkl
+  keypoint_file: /ssd_scratch/cvit/aparna/data/wlasl_2000/keypoints_hrnet_dark_coco_wholebody/train.pkl
   use_keypoints:
     - pose
     - mouth_half
     - hand
   zip_file: ../../data/wlasl_2000/WLASL2000.zip
   word_emb_file: ../../data/wlasl_2000/wlasl_word_embeddings.pkl
-  train: ../../generated/train.pkl
+  train: ../../generated/train_cutted.pkl
   #train: ../../data/wlasl_2000/train.pkl
-  dev: ../../generated/train.pkl
-  test: ../../data/wlasl_2000/train.pkl
+  dev: ../../generated/train_cutted.pkl
+  test: ../../generated/train_cutted.pkl
   dataset_name: wlasl
   level: word #word or char
   txt_lowercase: true
-  num_output_frames: 64
+  num_output_frames: 48
   max_sent_length: 400
   transform_cfg:
     img_size: 224
@@ -45,7 +47,7 @@ testing:
       beam_size: 1
 training:
   overwrite: true
-  model_dir: /ssd_scratch/cvit/aparna/results/nla_slr_wlasl_2000
+  model_dir: results/nla_slr_wlasl_2000
   random_seed: 321
   shuffle: True
   num_workers: 8

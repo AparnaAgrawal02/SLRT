@@ -47,6 +47,7 @@ class ISLRDataset(torch.utils.data.Dataset):
     def load_keypoints(self):
         if 'keypoint' in self.input_streams or 'keypoint_coord' in self.input_streams or 'trajectory' in self.input_streams:
             with open(self.dataset_cfg['keypoint_file'],'rb') as f:
+                print(self.dataset_cfg['keypoint_file'])
                 name2all_keypoints = pickle.load(f)
             assert 'hrnet' in self.dataset_cfg['keypoint_file']
             self.logger.info('Keypoints source: hrnet')
@@ -60,8 +61,8 @@ class ISLRDataset(torch.utils.data.Dataset):
                     name2keypoints[name].append(all_keypoints[:, selected_index]) # T, N, 3
                 name2keypoints[name] = np.concatenate(name2keypoints[name], axis=1) #T, N, 3
                 self.keypoints_num = name2keypoints[name].shape[1]
-            
-            self.logger.info(f'Total #={self.keypoints_num}') 
+            print(name2all_keypoints)
+           # self.logger.info(f'Total #={self.keypoints_num}') 
             assert self.keypoints_num == get_keypoints_num(self.dataset_cfg['keypoint_file'], self.dataset_cfg['use_keypoints'])
         
         else:
@@ -106,7 +107,7 @@ class ISLRDataset(torch.utils.data.Dataset):
         return word_emb_tab
     
     def create_vocab(self):
-        if 'WLASL' in self.dataset_cfg['dataset_name'] or 'NMFs-CSL' in self.dataset_cfg['dataset_name']:
+        if 'wlasl' in self.dataset_cfg['dataset_name'] or 'NMFs-CSL' in self.dataset_cfg['dataset_name']:
             annotation = self.load_annotations('train')
             vocab = []
             for item in annotation:

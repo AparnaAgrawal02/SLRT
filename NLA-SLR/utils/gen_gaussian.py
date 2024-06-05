@@ -85,7 +85,7 @@ def gen_gaussian_hmap_op(coords, raw_size=(260,210), map_size=None, sigma=1, thr
     # NOTE: openpose generate opencv-style coordinates!
     coords_y =  coords[..., 1]*factor_h
     coords_x = coords[..., 0]*factor_w
-    confs = coords[..., 2] #T, C
+    #confs = coords[..., 2] #T, C
     
     # if not limb:
     y, x = torch.meshgrid(torch.arange(map_h), torch.arange(map_w))
@@ -95,10 +95,10 @@ def gen_gaussian_hmap_op(coords, raw_size=(260,210), map_size=None, sigma=1, thr
     coords = coords.unsqueeze(0).unsqueeze(0).expand(map_h, map_w,-1,-1,-1).permute(4,3,2,0,1)  #[C,T,2,H,W]
     hmap = torch.exp(-((grid-coords)**2).sum(dim=2) / (2*sigma**2))  #[C,T,H,W]
     hmap = hmap.permute(1,0,2,3)  #[T,C,H,W]
-    if threshold > 0:
-        confs = confs.unsqueeze(-1).unsqueeze(-1) #T,C,1,1
-        confs = torch.where(confs>threshold, confs, torch.zeros_like(confs))
-        hmap = hmap*confs
+    # if threshold > 0:
+    #     confs = confs.unsqueeze(-1).unsqueeze(-1) #T,C,1,1
+    #     confs = torch.where(confs>threshold, confs, torch.zeros_like(confs))
+    #     hmap = hmap*confs
     
     center = kwargs.pop('center', None)
     if center is not None:

@@ -1,0 +1,30 @@
+2024-06-01 17:02:30,084 Keypoints source: hrnet
+2024-06-01 17:02:30,962 Load pretrained S3D backbone from ../../pretrained_models/s3ds_actioncls_ckpt
+2024-06-01 17:02:31,257 Load pretrained S3D backbone from ../../pretrained_models/s3ds_actioncls_ckpt
+2024-06-01 17:02:31,669 Load pretrained S3D backbone from ../../pretrained_models/s3ds_actioncls_ckpt
+2024-06-01 17:02:31,851 Load pretrained S3D backbone from ../../pretrained_models/s3ds_actioncls_ckpt
+2024-06-01 17:02:32,540 results/nla_slr_wlasl_2000/ckpts/best.ckpt does not exist
+2024-06-01 17:02:32,680 Evaluate on train set
+2024-06-01 17:02:32,681 Keypoints source: hrnet
+2024-06-01 17:02:32,690 {'recognition': {'beam_size': 1}}
+2024-06-01 17:02:32,690 ------------------Evaluation epoch=0 train examples #=4---------------------
+2024-06-01 17:04:55,485 Keypoints source: hrnet
+2024-06-01 17:04:56,345 Load pretrained S3D backbone from ../../pretrained_models/s3ds_actioncls_ckpt
+2024-06-01 17:04:56,574 Load pretrained S3D backbone from ../../pretrained_models/s3ds_actioncls_ckpt
+2024-06-01 17:04:56,980 Load pretrained S3D backbone from ../../pretrained_models/s3ds_actioncls_ckpt
+2024-06-01 17:04:57,143 Load pretrained S3D backbone from ../../pretrained_models/s3ds_actioncls_ckpt
+2024-06-01 17:04:57,825 results/nla_slr_wlasl_2000/ckpts/best.ckpt does not exist
+2024-06-01 17:04:57,984 Evaluate on train set
+2024-06-01 17:04:57,985 Keypoints source: hrnet
+2024-06-01 17:04:57,994 {'recognition': {'beam_size': 1}}
+2024-06-01 17:04:57,994 ------------------Evaluation epoch=0 train examples #=4---------------------
+2024-06-01 17:06:34,636 Keypoints source: hrnet
+2024-06-01 17:06:35,520 Load pretrained S3D backbone from ../../pretrained_models/s3ds_actioncls_ckpt
+2024-06-01 17:06:35,811 Load pretrained S3D backbone from ../../pretrained_models/s3ds_actioncls_ckpt
+2024-06-01 17:06:36,287 Load pretrained S3D backbone from ../../pretrained_models/s3ds_actioncls_ckpt
+2024-06-01 17:06:36,456 Load pretrained S3D backbone from ../../pretrained_models/s3ds_actioncls_ckpt
+2024-06-01 17:06:37,187 results/nla_slr_wlasl_2000/ckpts/best.ckpt does not exist
+2024-06-01 17:06:37,345 Evaluate on train set
+2024-06-01 17:06:37,345 Keypoints source: hrnet
+2024-06-01 17:06:37,355 {'recognition': {'beam_size': 1}}
+2024-06-01 17:06:37,355 ------------------Evaluation epoch=0 train examples #=4---------------------

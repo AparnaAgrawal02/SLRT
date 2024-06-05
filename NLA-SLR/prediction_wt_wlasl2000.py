@@ -64,15 +64,17 @@ def extract_feature(model, val_dataloader, cfg,
         logger.info('------------------Evaluation global step={} {} examples #={}------------------'.format(global_step, val_dataloader.dataset.split, len(val_dataloader.dataset)))
     model.eval()
 
-    folder_path = "/scratch/cvit/aparna/nla_slr_wlasl_generated"
+    folder_path = "/ssd_scratch/cvit/aparna/nla_slr_wlasl_generated"
     os.makedirs(folder_path, exist_ok=True)
     with torch.no_grad():
         for step, batch in enumerate(val_dataloader):
+            print(step)
             #forward -- loss
             batch = move_to_device(batch, cfg['device'])
-            _, features = model(is_train=False, labels=batch['labels'], sgn_videos=batch['sgn_videos'], sgn_keypoints=batch['sgn_keypoints'], epoch=epoch)
+            _,features = model(is_train=False, labels=batch['labels'], sgn_videos=batch['sgn_videos'], sgn_keypoints=batch['sgn_keypoints'], epoch=epoch)
+            print(features.shape)
             features = features.cpu()
-            torch.save(features, os.path.join(folder_path, batch['names'][0]+".pt"))
+            torch.save(features, os.path.join(folder_path,str(step)+".pt"))
             # print(batch['names'], features.shape)
 
 if __name__ == "__main__":
